@@ -9,7 +9,10 @@ const QR_URL_KEY = 'qr-start-url';
 // fetch() is called from JS/SW code — so there is no infinite-loop risk.
 self.addEventListener('fetch', (event) => {
   if (event.request.destination === 'manifest') {
-    event.respondWith(serveModifiedManifest(event.request.url));
+    // Strip cache-busting query params (e.g. ?v=...) before fetching.
+    const url = new URL(event.request.url);
+    url.search = '';
+    event.respondWith(serveModifiedManifest(url.toString()));
   }
 });
 
