@@ -1,0 +1,18 @@
+# Ignore everything except web build outputs
+*
+!.gitignore
+!.last_build_id
+!assets/
+!assets/**
+!canvaskit/
+!canvaskit/**
+!favicon.png
+!flutter.js
+!flutter_bootstrap.js
+!flutter_service_worker.js
+!icons/
+!icons/**
+!index.html
+!main.dart.js
+!manifest.json
+!version.json
