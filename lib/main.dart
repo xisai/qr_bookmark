@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
 
 import 'l10n/app_localizations.dart';
@@ -8,6 +9,7 @@ import 'screens/qr_display_screen.dart';
 import 'screens/qr_generate_screen.dart';
 
 void main() {
+  usePathUrlStrategy();
   runApp(const QrBookmarkApp());
 }
 
