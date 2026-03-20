@@ -108,6 +108,7 @@ class _QrDisplayScreenState extends State<QrDisplayScreen> {
     if (byteData == null) return;
     final base64Str = base64Encode(byteData.buffer.asUint8List());
     PwaIconService.updateIcon('data:image/png;base64,$base64Str');
+    await PwaIconService.updateManifestStartUrl();
   }
 
   @override
