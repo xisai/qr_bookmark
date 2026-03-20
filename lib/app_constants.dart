@@ -19,7 +19,7 @@ abstract final class AppConstants {
   static const double qrHorizontalMargin = 32.0;
 
   /// QRコード周囲の余白（dp）。
-  static const double qrPadding = 16.0;
+  static const double qrPadding = 24.0;
 
   /// PWAアイコン用にQRコードをキャプチャする際のピクセル比。
   static const double pwaIconPixelRatio = 3.0;
