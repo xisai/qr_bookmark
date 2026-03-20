@@ -6,7 +6,6 @@ import 'l10n/app_localizations.dart';
 import 'screens/manual_screen.dart';
 import 'screens/qr_display_screen.dart';
 import 'screens/qr_generate_screen.dart';
-import 'services/qr_url_service.dart';
 
 void main() {
   runApp(const QrBookmarkApp());
@@ -16,21 +15,23 @@ final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) {
-        final encoded =
-            state.uri.queryParameters[QrUrlService.paramName];
-        if (encoded != null && encoded.isNotEmpty) {
-          final sizeSteps = int.tryParse(
-                state.uri.queryParameters[QrUrlService.sizeParamName] ?? '',
-              ) ??
-              0;
-          return QrDisplayScreen(
-            encodedData: encoded,
-            initialSizeSteps: sizeSteps,
-          );
-        }
-        return const QrGenerateScreen();
-      },
+      builder: (context, state) => const QrGenerateScreen(),
+    ),
+    GoRoute(
+      path: '/qr/:encoded',
+      builder: (context, state) => QrDisplayScreen(
+        encodedData: state.pathParameters['encoded']!,
+      ),
+      routes: [
+        GoRoute(
+          path: ':s',
+          builder: (context, state) => QrDisplayScreen(
+            encodedData: state.pathParameters['encoded']!,
+            initialSizeSteps:
+                int.tryParse(state.pathParameters['s'] ?? '') ?? 0,
+          ),
+        ),
+      ],
     ),
     GoRoute(
       path: '/manual',

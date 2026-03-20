@@ -9,9 +9,8 @@ import '../widgets/app_scaffold.dart';
 
 /// Screen for entering data and generating a QR code.
 ///
-/// Displays when the URL has no [QrUrlService.paramName] query parameter.
-/// On successful generation, navigates to the QR display screen by
-/// appending the encoded data as a query parameter.
+/// Displayed at `/`. On successful generation, navigates to the QR display
+/// screen at `/qr/<encodedData>`.
 class QrGenerateScreen extends StatefulWidget {
   const QrGenerateScreen({super.key});
 
@@ -64,7 +63,7 @@ class _QrGenerateScreenState extends State<QrGenerateScreen> {
 
     try {
       final encoded = QrUrlService.encode(data);
-      context.go('/?${QrUrlService.paramName}=$encoded');
+      context.go(QrUrlService.buildDisplayPath(encoded, 0));
     } catch (_) {
       setState(() => _errorText = l10n.errorQrDataTooLarge);
     }

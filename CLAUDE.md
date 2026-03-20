@@ -30,30 +30,29 @@ lib/
     qr_data.dart                    # QrData model (type + content → bytes ↔ QrImage)
   services/
     crypto_service.dart             # XOR encrypt/decrypt + Base64URL
-    qr_url_service.dart             # Encode/decode QrData ↔ URL query param "d"
+    qr_url_service.dart             # Encode/decode QrData ↔ URL path segments
     pwa_icon_service.dart           # Conditional export (web/stub)
     pwa_icon_service_web.dart       # dart:html: update <link rel="apple-touch-icon">
     pwa_icon_service_stub.dart      # No-op for non-web
   widgets/
     app_scaffold.dart               # Scaffold + hamburger drawer (all screens share this)
   screens/
-    qr_generate_screen.dart         # "/" with no param → input form
-    qr_display_screen.dart          # "/?d=<encoded>" → QR display + size buttons
+    qr_generate_screen.dart         # "/" → input form
+    qr_display_screen.dart          # "/qr/<encoded>[/<sizeSteps>]" → QR display + size buttons
     manual_screen.dart              # "/manual"
-    license_screen.dart             # "/license" — uses LicenseRegistry
 ```
 
 **Routing:**
-- `/` (no `d` param) → `QrGenerateScreen`
-- `/?d=<encoded>` → `QrDisplayScreen`
+- `/` → `QrGenerateScreen`
+- `/qr/<encoded>` → `QrDisplayScreen` (sizeSteps = 0)
+- `/qr/<encoded>/<sizeSteps>` → `QrDisplayScreen` (with size steps)
 - `/manual` → `ManualScreen`
-- `/license` → `LicenseScreen`
 
-**URL parameter encoding:**
+**URL encoding:**
 1. Serialize `QrData` to bytes (type byte + content bytes)
 2. XOR with repeating 8-char random salt
 3. Base64URL-encode
-4. Prepend salt → value of query param `d`
+4. Prepend salt → path segment `<encoded>`
 
 **QR size control (`qr_display_screen.dart`):**
 - Default size = 70 % of available width
