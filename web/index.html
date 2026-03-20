@@ -31,6 +31,24 @@
 
   <title>qr_bookmark</title>
   <link rel="manifest" href="manifest.json">
+  <script>
+    // Called from Dart when a QR display screen is opened.
+    // Notifies the service worker to update manifest start_url.
+    function setQrStartUrl(url) {
+      if (!('serviceWorker' in navigator)) return;
+      // Write to Cache API for persistence across SW restarts.
+      if ('caches' in window) {
+        caches.open('qr-state-v1').then(function(cache) {
+          cache.put('qr-start-url', new Response(url));
+        });
+      }
+      // Also notify the active SW via postMessage for immediate update.
+      var sw = navigator.serviceWorker.controller;
+      if (sw) {
+        sw.postMessage({ type: 'SET_QR_URL', url: url });
+      }
+    }
+  </script>
 </head>
 <body>
   <!--
