@@ -40,6 +40,9 @@ abstract final class AppConstants {
   /// フォームのボタン直前の縦スペース（dp）。
   static const double formButtonSpacing = 24.0;
 
+  /// テキスト入力エリアの最小行数。
+  static const int textInputMinLines = 4;
+
   /// 横並びボタン間のスペース（dp）。
   static const double buttonRowSpacing = 24.0;
 

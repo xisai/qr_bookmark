@@ -95,6 +95,9 @@ class _QrGenerateScreenState extends State<QrGenerateScreen> {
                 errorText: _errorText,
                 border: const OutlineInputBorder(),
               ),
+              minLines: _selectedType == QrInputType.text
+                  ? AppConstants.textInputMinLines
+                  : 1,
               maxLines: _selectedType == QrInputType.text ? null : 1,
               keyboardType: _selectedType == QrInputType.binary
                   ? TextInputType.visiblePassword
