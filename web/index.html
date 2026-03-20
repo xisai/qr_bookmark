@@ -33,19 +33,39 @@
   <link rel="manifest" href="manifest.json">
   <script>
     // Called from Dart when a QR display screen is opened.
-    // Notifies the service worker to update manifest start_url.
+    // Stores the QR URL so the service worker can inject it as start_url
+    // in the manifest when the user adds the page to their home screen.
     function setQrStartUrl(url) {
       if (!('serviceWorker' in navigator)) return;
-      // Write to Cache API for persistence across SW restarts.
-      if ('caches' in window) {
-        caches.open('qr-state-v1').then(function(cache) {
-          cache.put('qr-start-url', new Response(url));
-        });
+
+      function doUpdate() {
+        // Write to Cache API for persistence across SW restarts.
+        if ('caches' in window) {
+          caches.open('qr-state-v1').then(function(cache) {
+            return cache.put('qr-start-url', new Response(url));
+          }).then(function() {
+            // Force a manifest re-fetch now that the Cache API is updated.
+            // The SW will intercept this fetch and return the modified manifest.
+            var link = document.querySelector('link[rel="manifest"]');
+            if (link) {
+              link.href = 'manifest.json?v=' + Date.now();
+            }
+          });
+        }
+        // Also notify the active SW via postMessage.
+        var sw = navigator.serviceWorker.controller;
+        if (sw) {
+          sw.postMessage({ type: 'SET_QR_URL', url: url });
+        }
       }
-      // Also notify the active SW via postMessage for immediate update.
-      var sw = navigator.serviceWorker.controller;
-      if (sw) {
-        sw.postMessage({ type: 'SET_QR_URL', url: url });
+
+      if (navigator.serviceWorker.controller) {
+        // SW is already controlling this page.
+        doUpdate();
+      } else {
+        // First visit: wait for the SW to take control (clients.claim()),
+        // then update. This ensures the SW can intercept the manifest re-fetch.
+        navigator.serviceWorker.addEventListener('controllerchange', doUpdate, { once: true });
       }
     }
   </script>
