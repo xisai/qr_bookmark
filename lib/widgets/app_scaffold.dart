@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../app_version.dart';
 import '../l10n/app_localizations.dart';
 
 /// Common scaffold that provides an AppBar and a navigation drawer
@@ -37,46 +38,61 @@ class _AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
         children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  child: Text(
+                    l10n.appTitle,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.qr_code),
+                  title: Text(l10n.menuGenerate),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    context.go('/');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.help_outline),
+                  title: Text(l10n.menuManual),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    context.go('/manual');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: Text(l10n.menuLicense),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    showLicensePage(
+                      context: context,
+                      applicationName: l10n.appTitle,
+                    );
+                  },
+                ),
+              ],
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
             child: Text(
-              l10n.appTitle,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimary,
+              kAppVersion,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.outline,
                   ),
             ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.qr_code),
-            title: Text(l10n.menuGenerate),
-            onTap: () {
-              Navigator.of(context).pop();
-              context.go('/');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.help_outline),
-            title: Text(l10n.menuManual),
-            onTap: () {
-              Navigator.of(context).pop();
-              context.go('/manual');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: Text(l10n.menuLicense),
-            onTap: () {
-              Navigator.of(context).pop();
-              showLicensePage(
-                context: context,
-                applicationName: l10n.appTitle,
-              );
-            },
           ),
         ],
       ),
