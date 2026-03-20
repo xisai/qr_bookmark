@@ -13,17 +13,47 @@ flutter run            # Run the app
 flutter test           # Run all tests
 flutter test test/widget_test.dart  # Run a single test file
 flutter analyze        # Lint (uses flutter_lints)
-flutter build apk      # Build Android APK (also: ios, web, linux, macos, windows)
+flutter build web --release  # Build for web deployment
+flutter build apk      # Build Android APK (also: ios, linux, macos, windows)
 ```
+
+## Commit rules
+
+- **コミット前にバージョンを更新すること。** `lib/app_version.dart` の `kAppVersion` を
+  `yyyyMMdd-N` 形式でインクリメントする（同日なら N を +1、日付が変わったら日付更新・N=1）。
+- **コミット・プッシュは明示的に指示があった場合のみ行うこと。**
+
+## Web deployment (web-pages branch)
+
+web-pages ブランチには `flutter build web --release` のビルド成果物のみを格納する。
+デプロイ手順：
+
+```bash
+flutter build web --release
+git stash
+git checkout web-pages
+cp -r build/web/. .
+git add -A
+git commit -m "web build"
+git push origin web-pages
+git checkout main
+git stash pop
+```
+
+web-pages ブランチの `.gitignore` はホワイトリスト方式（`*` で全除外 → 必要なファイルだけ許可）。
+新たなファイルが `build/web/` に追加された場合は web-pages の `.gitignore` にも追記すること。
 
 ## Architecture
 
-Flutter PWA web app. Routing is URL-driven via `go_router`. State management uses plain `setState` (no external state library).
+Flutter PWA web app. Routing is URL-driven via `go_router` with `usePathUrlStrategy()`
+(path-based, no hash). State management uses plain `setState` (no external state library).
 
 **File structure:**
 ```
 lib/
-  main.dart                         # App entry, GoRouter setup, MaterialApp.router
+  main.dart                         # App entry, usePathUrlStrategy(), GoRouter setup, MaterialApp.router
+  app_version.dart                  # kAppVersion 定数 (yyyyMMdd-N)
+  app_constants.dart                # UI調整用の定数クラス
   l10n/
     app_localizations.dart          # EN/JA strings via abstract class + two impl classes
   models/
@@ -32,7 +62,7 @@ lib/
     crypto_service.dart             # XOR encrypt/decrypt + Base64URL
     qr_url_service.dart             # Encode/decode QrData ↔ URL path segments
     pwa_icon_service.dart           # Conditional export (web/stub)
-    pwa_icon_service_web.dart       # dart:html: update <link rel="apple-touch-icon">
+    pwa_icon_service_web.dart       # apple-touch-icon更新 + SWへのQR URL通知
     pwa_icon_service_stub.dart      # No-op for non-web
   widgets/
     app_scaffold.dart               # Scaffold + hamburger drawer (all screens share this)
@@ -40,6 +70,12 @@ lib/
     qr_generate_screen.dart         # "/" → input form
     qr_display_screen.dart          # "/qr/<encoded>[/<sizeSteps>]" → QR display + size buttons
     manual_screen.dart              # "/manual"
+web/
+  index.html                        # GitHub Pages SPAパス復元スクリプト + setQrStartUrl() 含む
+  404.html                          # GitHub Pages SPA用リダイレクト
+  flutter_bootstrap.js              # カスタムブートストラップ (sw.js を登録)
+  sw.js                             # Service Worker: manifest.json インターセプト + Flutter SW委譲
+  manifest.json                     # PWAマニフェスト
 ```
 
 **Routing:**
@@ -47,6 +83,7 @@ lib/
 - `/qr/<encoded>` → `QrDisplayScreen` (sizeSteps = 0)
 - `/qr/<encoded>/<sizeSteps>` → `QrDisplayScreen` (with size steps)
 - `/manual` → `ManualScreen`
+- 存在しないパス → `web/404.html` が `/?/...` にリダイレクト → `index.html` でパス復元
 
 **URL encoding:**
 1. Serialize `QrData` to bytes (type byte + content bytes)
@@ -55,13 +92,20 @@ lib/
 4. Prepend salt → path segment `<encoded>`
 
 **QR size control (`qr_display_screen.dart`):**
-- Default size = 70 % of available width
-- Each button press multiplies by `(1 ± _kSizeStepFactor)` — currently `0.10` (10 %)
-- Clamped to `[_kMinQrSize, maxWidth − 32]`
-- Change `_kSizeStepFactor` at the top of the file to adjust step size
+- Default size = 70 % of available width (`AppConstants.qrDefaultSizeRatio`)
+- Each button press changes size by ±10 % (`AppConstants.qrSizeStepFactor`)
+- Clamped to `[AppConstants.qrMinSize, maxWidth − AppConstants.qrHorizontalMargin]`
+- サイズステップは URL パスの第2セグメントとして保持される
+
+**PWA / iOS home screen:**
+- QR表示画面を開くと `apple-touch-icon` をQR画像に更新
+- Service Worker (`sw.js`) が `manifest.json` フェッチをインターセプトし `start_url` をQR URLに書き換える
+- `controllerchange` イベント後に `<link rel="manifest">` の href を更新して再フェッチを強制
+- パスベースURLにより iOSがホーム画面追加時のURLを保持しやすくなっている
 
 **Key dependencies:**
 - `pretty_qr_code: ^3.6.0` — QR rendering (`PrettyQrView`)
 - `qr: ^3.0.0` — `QrCode` / `QrImage` lower-level API
-- `go_router: ^14.0.0` — URL-based routing for web
+- `go_router: ^17.1.0` — URL-based routing for web
+- `flutter_web_plugins` (SDK) — `usePathUrlStrategy()`
 - `flutter_localizations` (SDK) — Material/Cupertino locale delegates
