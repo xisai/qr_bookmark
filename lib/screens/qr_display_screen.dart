@@ -20,8 +20,13 @@ import '../widgets/app_scaffold.dart';
 /// Redirects to the generate screen if the parameter cannot be decoded.
 class QrDisplayScreen extends StatefulWidget {
   final String encodedData;
+  final int initialSizeSteps;
 
-  const QrDisplayScreen({super.key, required this.encodedData});
+  const QrDisplayScreen({
+    super.key,
+    required this.encodedData,
+    this.initialSizeSteps = 0,
+  });
 
   @override
   State<QrDisplayScreen> createState() => _QrDisplayScreenState();
@@ -29,12 +34,13 @@ class QrDisplayScreen extends StatefulWidget {
 
 class _QrDisplayScreenState extends State<QrDisplayScreen> {
   QrImage? _qrImage;
-  int _sizeSteps = 0;
+  late int _sizeSteps;
   final GlobalKey _repaintKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
+    _sizeSteps = widget.initialSizeSteps;
     _qrImage = _buildQrImage();
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -61,13 +67,27 @@ class _QrDisplayScreenState extends State<QrDisplayScreen> {
   void _enlarge(double maxSize, double defaultSize) {
     final current = _currentSize(defaultSize, maxSize);
     final next = _computeSize(_sizeSteps + 1, defaultSize, maxSize);
-    if (next > current) setState(() => _sizeSteps++);
+    if (next > current) {
+      setState(() => _sizeSteps++);
+      _updateUrl();
+    }
   }
 
   void _shrink(double maxSize, double defaultSize) {
     final current = _currentSize(defaultSize, maxSize);
     final next = _computeSize(_sizeSteps - 1, defaultSize, maxSize);
-    if (next < current) setState(() => _sizeSteps--);
+    if (next < current) {
+      setState(() => _sizeSteps--);
+      _updateUrl();
+    }
+  }
+
+  /// Updates the URL to reflect the current size step without adding a
+  /// browser history entry.
+  void _updateUrl() {
+    context.replace(
+      QrUrlService.buildDisplayPath(widget.encodedData, _sizeSteps),
+    );
   }
 
   double _currentSize(double defaultSize, double maxSize) =>

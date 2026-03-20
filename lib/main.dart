@@ -21,7 +21,14 @@ final _router = GoRouter(
         final encoded =
             state.uri.queryParameters[QrUrlService.paramName];
         if (encoded != null && encoded.isNotEmpty) {
-          return QrDisplayScreen(encodedData: encoded);
+          final sizeSteps = int.tryParse(
+                state.uri.queryParameters[QrUrlService.sizeParamName] ?? '',
+              ) ??
+              0;
+          return QrDisplayScreen(
+            encodedData: encoded,
+            initialSizeSteps: sizeSteps,
+          );
         }
         return const QrGenerateScreen();
       },
