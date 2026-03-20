@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>qr_bookmark</title>
+  <script>
+    // GitHub Pages SPA redirect.
+    // Encodes the path as a query string and redirects to the app root so
+    // that index.html can restore it via history.replaceState.
+    // Based on https://github.com/rafgraph/spa-github-pages
+    //
+    // pathSegmentsToKeep: 1 for GitHub Pages project sites (e.g. /repo-name/),
+    //                      0 for user/org sites served at the root (/).
+    var pathSegmentsToKeep = 1;
+    var l = window.location;
+    l.replace(
+      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+      l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+      l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+      (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+      l.hash
+    );
+  </script>
+</head>
+</html>
