@@ -35,8 +35,14 @@ if (!window._flutter) {
 }
 _flutter.buildConfig = {"engineRevision":"e4b8dca3f1b4ede4c30371002441c88c12187ed6","builds":[{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"},{}]};
 
-_flutter.loader.load({
-  serviceWorkerSettings: {
-    serviceWorkerVersion: "2213676120" /* Flutter's service worker is deprecated and will be removed in a future Flutter release. */
-  }
-});
+
+// Register our custom service worker (sw.js) which wraps Flutter's
+// flutter_service_worker.js and additionally intercepts manifest.json
+// requests to inject the current QR URL as start_url.
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+
+// Load Flutter without its built-in SW registration, since sw.js
+// handles that via importScripts('flutter_service_worker.js').
+_flutter.loader.load();

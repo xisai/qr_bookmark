@@ -10,6 +10,7 @@
 !flutter.js
 !flutter_bootstrap.js
 !flutter_service_worker.js
+!sw.js
 !icons/
 !icons/**
 !index.html
