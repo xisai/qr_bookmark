@@ -10,8 +10,8 @@
     // Based on https://github.com/rafgraph/spa-github-pages
     //
     // pathSegmentsToKeep: 1 for GitHub Pages project sites (e.g. /repo-name/),
-    //                      0 for user/org sites served at the root (/).
-    var pathSegmentsToKeep = 1;
+    //                      0 for user/org sites or custom domains served at the root (/).
+    var pathSegmentsToKeep = 0;
     var l = window.location;
     l.replace(
       l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
