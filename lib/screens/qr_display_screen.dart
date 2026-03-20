@@ -166,7 +166,9 @@ class _QrDisplayScreenState extends State<QrDisplayScreen> {
                     padding: const EdgeInsets.all(AppConstants.qrPadding),
                     child: PrettyQrView(
                       qrImage: _qrImage!,
-                      decoration: const PrettyQrDecoration(),
+                      decoration: const PrettyQrDecoration(
+                        shape: PrettyQrSmoothSymbol(roundFactor: 0),
+                      ),
                     ),
                   ),
                 ),
