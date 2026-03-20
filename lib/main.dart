@@ -3,7 +3,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import 'l10n/app_localizations.dart';
-import 'screens/license_screen.dart';
 import 'screens/manual_screen.dart';
 import 'screens/qr_display_screen.dart';
 import 'screens/qr_generate_screen.dart';
@@ -36,10 +35,6 @@ final _router = GoRouter(
     GoRoute(
       path: '/manual',
       builder: (context, state) => const ManualScreen(),
-    ),
-    GoRoute(
-      path: '/license',
-      builder: (context, state) => const LicenseScreen(),
     ),
   ],
 );

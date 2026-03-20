@@ -72,7 +72,10 @@ class _AppDrawer extends StatelessWidget {
             title: Text(l10n.menuLicense),
             onTap: () {
               Navigator.of(context).pop();
-              context.go('/license');
+              showLicensePage(
+                context: context,
+                applicationName: l10n.appTitle,
+              );
             },
           ),
         ],
