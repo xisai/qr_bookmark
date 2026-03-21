@@ -74,7 +74,7 @@ class _EnLocalizations implements AppLocalizations {
   String get typeBinary => 'Binary';
 
   @override
-  String get hintText => 'Enter text to encode';
+  String get hintText => 'Enter text for QR code';
 
   @override
   String get hintBinary => 'Enter hex string (e.g. BEEFFEEB01)';
@@ -157,7 +157,7 @@ class _JaLocalizations implements AppLocalizations {
   String get typeBinary => 'バイナリ';
 
   @override
-  String get hintText => 'エンコードするテキストを入力';
+  String get hintText => 'QRコードにするテキストを入力';
 
   @override
   String get hintBinary => '16進数文字列を入力 (例: BEEFFEEB01)';
