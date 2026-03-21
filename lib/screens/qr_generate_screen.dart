@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../app_constants.dart';
 import '../l10n/app_localizations.dart';
 import '../models/qr_data.dart';
+import '../services/pwa_icon_service.dart';
 import '../services/qr_url_service.dart';
 import '../widgets/app_scaffold.dart';
 
@@ -63,7 +64,13 @@ class _QrGenerateScreenState extends State<QrGenerateScreen> {
 
     try {
       final encoded = QrUrlService.encode(data);
-      context.go(QrUrlService.buildDisplayPath(encoded, 0));
+      final path = QrUrlService.buildDisplayPath(encoded, 0);
+      // Web: フルページナビゲーションで index.html を再実行し
+      // manifest の start_url を QR URL に確実に設定する。
+      // Non-web: go_router のクライアントサイドナビゲーション。
+      if (!PwaIconService.navigateToPath(path)) {
+        context.go(path);
+      }
     } catch (_) {
       setState(() => _errorText = l10n.errorQrDataTooLarge);
     }

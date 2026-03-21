@@ -30,4 +30,12 @@ class PwaIconService {
       // Silently ignore — manifest update is best-effort.
     }
   }
+
+  /// Navigates to [path] via a full page load so that index.html re-runs and
+  /// sets the correct manifest start_url immediately.
+  /// Returns `true` to indicate navigation was handled by this method.
+  static bool navigateToPath(String path) {
+    html.window.location.href = path;
+    return true;
+  }
 }

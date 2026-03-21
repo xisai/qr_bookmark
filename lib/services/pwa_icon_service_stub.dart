@@ -9,4 +9,7 @@ class PwaIconService {
   static Future<void> updateManifestStartUrl() async {
     // No-op on non-web platforms.
   }
+
+  /// Returns `false` so the caller falls back to go_router navigation.
+  static bool navigateToPath(String path) => false;
 }
