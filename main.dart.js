@@ -92960,7 +92960,7 @@ gHa(){return"QR Code"},
 gXy(){return"Manual"},
 gZ4(){return"Text"},
 gZ3(){return"Binary"},
-gWH(){return"Enter text to encode"},
+gWH(){return"Enter text for QR code"},
 gWG(){return"Enter hex string (e.g. BEEFFEEB01)"},
 gJV(){return"Generate QR"},
 gVG(){return"Enlarge"},
@@ -92980,7 +92980,7 @@ gHa(){return"QR\u30b3\u30fc\u30c9"},
 gXy(){return"\u30de\u30cb\u30e5\u30a2\u30eb"},
 gZ4(){return"\u30c6\u30ad\u30b9\u30c8"},
 gZ3(){return"\u30d0\u30a4\u30ca\u30ea"},
-gWH(){return"\u30a8\u30f3\u30b3\u30fc\u30c9\u3059\u308b\u30c6\u30ad\u30b9\u30c8\u3092\u5165\u529b"},
+gWH(){return"QR\u30b3\u30fc\u30c9\u306b\u3059\u308b\u30c6\u30ad\u30b9\u30c8\u3092\u5165\u529b"},
 gWG(){return"16\u9032\u6570\u6587\u5b57\u5217\u3092\u5165\u529b (\u4f8b: BEEFFEEB01)"},
 gJV(){return"QR\u751f\u6210"},
 gVG(){return"\u62e1\u5927"},
@@ -93223,7 +93223,7 @@ else{r=A.S(a).ax
 p=r.ry
 if(p==null){p=r.v
 r=p==null?r.k3:p}else r=p
-r=o.c2(r)}return new A.N_(A.jK(A.c([q,new A.cC(B.p6,A.cL("20260321-6",s,s,s,r,s,s),s)],n),B.aU,B.bs,B.bM),s)}}
+r=o.c2(r)}return new A.N_(A.jK(A.c([q,new A.cC(B.p6,A.cL("20260322-1",s,s,s,r,s,s),s)],n),B.aU,B.bs,B.bM),s)}}
 A.apR.prototype={
 $0(){var s=this.a
 A.j4(s,!1).e8()
