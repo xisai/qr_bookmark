@@ -2,6 +2,7 @@
 
 const QR_CACHE_NAME = 'qr-state-v1';
 const QR_URL_KEY = 'qr-start-url';
+const QR_ICON_KEY = 'qr-icon';
 
 // Intercept manifest.json fetches from the browser.
 // event.request.destination === 'manifest' is only set when the browser
@@ -13,8 +14,17 @@ self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
     url.search = '';
     event.respondWith(serveModifiedManifest(url.toString()));
+  } else if (new URL(event.request.url).pathname === '/icons/qr-dynamic-icon.png') {
+    event.respondWith(serveQrIcon(event.request));
   }
 });
+
+async function serveQrIcon(request) {
+  const cache = await caches.open(QR_CACHE_NAME);
+  const stored = await cache.match(QR_ICON_KEY);
+  if (stored) return stored.clone();
+  return fetch('/icons/Icon-512.png');
+}
 
 async function serveModifiedManifest(url) {
   try {
@@ -27,6 +37,15 @@ async function serveModifiedManifest(url) {
     if (stored) {
       manifest.start_url = await stored.text();
     }
+    const iconStored = await cache.match(QR_ICON_KEY);
+    if (iconStored) {
+      const origin = new URL(url).origin;
+      const iconUrl = origin + '/icons/qr-dynamic-icon.png';
+      manifest.icons = [
+        { src: iconUrl, sizes: '192x192', type: 'image/png' },
+        { src: iconUrl, sizes: '512x512', type: 'image/png' },
+      ];
+    }
     return new Response(JSON.stringify(manifest), {
       status: 200,
       headers: { 'Content-Type': 'application/manifest+json' },
@@ -36,11 +55,17 @@ async function serveModifiedManifest(url) {
   }
 }
 
-// Store the QR URL sent from the Flutter app via postMessage.
+// Store the QR URL / QR icon sent from the Flutter app via postMessage.
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SET_QR_URL') {
     caches.open(QR_CACHE_NAME).then((cache) => {
       cache.put(QR_URL_KEY, new Response(event.data.url));
+    });
+  }
+  if (event.data && event.data.type === 'SET_QR_ICON') {
+    caches.open(QR_CACHE_NAME).then(async (cache) => {
+      const response = await fetch(event.data.dataUrl);
+      cache.put(QR_ICON_KEY, response);
     });
   }
 });

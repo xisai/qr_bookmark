@@ -57,6 +57,8 @@
     // 参考: https://qiita.com/yjtakahagi/items/c247223ca35f5bf1f310
     //
     // 注意: blob manifest ではアイコンのパスをフルパスで指定しないと有効にならない。
+    var _qrIconMode = false;
+
     function updatePwaManifest(startUrl) {
       var link = document.getElementById('pwa-manifest');
       if (!link) return;
@@ -75,12 +77,17 @@
         description: 'Generate QR codes from text or binary data and bookmark them via URL.',
         orientation: 'portrait-primary',
         prefer_related_applications: false,
-        icons: [
-          { src: origin + '/icons/Icon-192.png',          sizes: '192x192', type: 'image/png' },
-          { src: origin + '/icons/Icon-512.png',          sizes: '512x512', type: 'image/png' },
-          { src: origin + '/icons/Icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
-          { src: origin + '/icons/Icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-        ]
+        icons: _qrIconMode
+          ? [
+              { src: origin + '/icons/qr-dynamic-icon.png', sizes: '192x192', type: 'image/png' },
+              { src: origin + '/icons/qr-dynamic-icon.png', sizes: '512x512', type: 'image/png' }
+            ]
+          : [
+              { src: origin + '/icons/Icon-192.png',          sizes: '192x192', type: 'image/png' },
+              { src: origin + '/icons/Icon-512.png',          sizes: '512x512', type: 'image/png' },
+              { src: origin + '/icons/Icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+              { src: origin + '/icons/Icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+            ]
       };
       link.href = URL.createObjectURL(
         new Blob([JSON.stringify(manifest)], { type: 'application/json' })
@@ -94,6 +101,19 @@
     // start_url を QR の URL に更新する。
     function setQrStartUrl(url) {
       updatePwaManifest(url);
+    }
+
+    // Dart から QR 表示画面でアイコンが確定したときに呼ばれる。
+    // SW にアイコン PNG をキャッシュさせ、blob manifest の icons を仮想 URL に切り替える。
+    function setQrIcon(dataUrl) {
+      if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SET_QR_ICON',
+          dataUrl: dataUrl,
+        });
+      }
+      _qrIconMode = true;
+      updatePwaManifest(location.href);
     }
   </script>
 </head>
