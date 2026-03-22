@@ -34,6 +34,14 @@ abstract class AppLocalizations {
   String get enlargeTooltip;
   String get shrinkTooltip;
 
+  // Passphrase
+  String get hintPassphrase;
+  String get errorPassphraseTooShort;
+  String get errorPassphraseWrong;
+  String get passphrasePrompt;
+  String get showQrButton;
+  String get passphraseSetMessage;
+
   // Errors
   String get errorEmptyInput;
   String get errorInvalidHex;
@@ -89,6 +97,26 @@ class _EnLocalizations implements AppLocalizations {
   String get shrinkTooltip => 'Shrink';
 
   @override
+  String get hintPassphrase => 'Passphrase (optional, min 6 chars)';
+
+  @override
+  String get errorPassphraseTooShort =>
+      'Passphrase must be at least 6 characters.';
+
+  @override
+  String get errorPassphraseWrong => 'Incorrect passphrase.';
+
+  @override
+  String get passphrasePrompt =>
+      'Enter the passphrase to view this QR code.';
+
+  @override
+  String get showQrButton => 'Show QR';
+
+  @override
+  String get passphraseSetMessage => 'Passphrase has been set.';
+
+  @override
   String get errorEmptyInput => 'Please enter data.';
 
   @override
@@ -118,13 +146,17 @@ class _EnLocalizations implements AppLocalizations {
 2. Enter the data you want to encode.
    - Text: Any UTF-8 text.
    - Binary: A hex string (e.g. BEEFFEEB01). Must be an even number of characters using 0–9 and A–F.
-3. Tap "Generate QR" to create the QR code.
+3. Optionally enter a passphrase (6 characters or more) to protect the QR code.
+4. Tap "Generate QR" to create the QR code.
+
+## Passphrase Protection
+If you set a passphrase, the QR data in the URL cannot be decoded without it. Anyone who opens the URL will be prompted to enter the passphrase before the QR code is shown. Leave the passphrase field empty if you do not need protection.
 
 ## Adjusting QR Size
 Use the + and − buttons on the QR Code screen to enlarge or shrink the displayed QR code. The image is regenerated at each step.
 
 ## Bookmarking a QR Code
-The QR data is stored in the URL. Bookmark the current URL to save your QR code — opening the bookmark will restore it instantly.
+The QR data is stored in the URL. Bookmark the current URL to save your QR code — opening the bookmark will restore it instantly. If a passphrase was set, you will need to enter it each time you open the bookmark.
 
 ## Adding to Home Screen (PWA)
 On iOS or Android, use your browser's "Add to Home Screen" option.
@@ -172,6 +204,24 @@ class _JaLocalizations implements AppLocalizations {
   String get shrinkTooltip => '縮小';
 
   @override
+  String get hintPassphrase => 'あいことば（任意・6文字以上）';
+
+  @override
+  String get errorPassphraseTooShort => 'あいことばは6文字以上入力してください。';
+
+  @override
+  String get errorPassphraseWrong => 'あいことばが違います。';
+
+  @override
+  String get passphrasePrompt => 'QRコードを表示するにはあいことばを入力してください。';
+
+  @override
+  String get showQrButton => 'QRを表示';
+
+  @override
+  String get passphraseSetMessage => 'あいことばが設定されました。';
+
+  @override
   String get errorEmptyInput => 'データを入力してください。';
 
   @override
@@ -201,13 +251,17 @@ class _JaLocalizations implements AppLocalizations {
 2. エンコードしたいデータを入力します。
    - テキスト：UTF-8テキストを入力してください。
    - バイナリ：16進数文字列を入力してください（例: BEEFFEEB01）。0〜9、A〜Fの文字を偶数桁で入力する必要があります。
-3. 「QR生成」ボタンをタップしてQRコードを生成します。
+3. 必要に応じてあいことばを入力します（6文字以上、任意）。
+4. 「QR生成」ボタンをタップしてQRコードを生成します。
+
+## あいことば（パスフレーズ保護）
+あいことばを設定すると、URLに含まれるQRデータはあいことばがないと復元できなくなります。URLを開いた人はあいことばの入力を求められ、正しく入力した場合のみQRコードが表示されます。保護が不要な場合はあいことば欄を空欄のままにしてください。
 
 ## QRコードのサイズ調整
 QRコード画面の＋・−ボタンで表示サイズを拡大・縮小できます。ボタンを押すたびに画像が再生成されます。
 
 ## QRコードのブックマーク
-QRデータはURLに格納されています。現在のURLをブックマークすることでQRコードを保存できます。ブックマークを開くと、QRコードが即座に表示されます。
+QRデータはURLに格納されています。現在のURLをブックマークすることでQRコードを保存できます。ブックマークを開くと、QRコードが即座に表示されます。あいことばを設定した場合は、ブックマークを開くたびにあいことばの入力が必要です。
 
 ## ホーム画面への追加（PWA）
 iOSまたはAndroidのブラウザで「ホーム画面に追加」を使用できます。

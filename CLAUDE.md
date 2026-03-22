@@ -59,11 +59,11 @@ lib/
   models/
     qr_data.dart                    # QrData model (type + content → bytes ↔ QrImage)
   services/
-    crypto_service.dart             # XOR encrypt/decrypt + Base64URL
-    qr_url_service.dart             # Encode/decode QrData ↔ URL path segments
+    crypto_service.dart             # XOR encrypt/decrypt + Base64URL + HMAC-SHA256
+    qr_url_service.dart             # Encode/decode QrData ↔ URL path segments (passphrase対応)
     pwa_icon_service.dart           # Conditional export (web/stub)
-    pwa_icon_service_web.dart       # apple-touch-icon更新 + SWへのQR URL通知
-    pwa_icon_service_stub.dart      # No-op for non-web
+    pwa_icon_service_web.dart       # apple-touch-icon更新 + SWへのQR URL通知 + passphrase引き渡し
+    pwa_icon_service_stub.dart      # No-op for non-web (passphrase引き渡しのみ実装)
   widgets/
     app_scaffold.dart               # Scaffold + hamburger drawer (all screens share this)
   screens/
@@ -85,11 +85,25 @@ web/
 - `/manual` → `ManualScreen`
 - 存在しないパス → `web/404.html` が `/?/...` にリダイレクト → `index.html` でパス復元
 
-**URL encoding:**
+**URL encoding (no passphrase):**
 1. Serialize `QrData` to bytes (type byte + content bytes)
 2. XOR with repeating 8-char random salt
 3. Base64URL-encode
 4. Prepend salt → path segment `<encoded>`
+
+**URL encoding (with passphrase):**
+1. Serialize `QrData` to bytes
+2. Compute HMAC-SHA256(key=passphrase, msg=bytes) → take first 8 bytes as MAC
+3. XOR (MAC + bytes) with passphrase (repeating)
+4. Prepend marker byte `0xFF`
+5. Apply salt-XOR + Base64URL (same as above) → path segment `<encoded>`
+
+On decode: marker byte `0xFF` triggers passphrase prompt; HMAC is verified before returning data.
+
+**Passphrase handoff between screens:**
+- Generate → Display (full-page nav): passphrase saved to `sessionStorage['qr_bookmark_passphrase']`, consumed in `initState` → `_DisplayState.autoUnlocked` (shows banner)
+- Display → Display (size change, `context.replace`): passphrase saved to `sessionStorage['qr_bookmark_resize_passphrase']`, consumed in `initState` → `_DisplayState.unlocked` (no banner)
+- URL direct access without passphrase: → `_DisplayState.locked` (shows passphrase input form)
 
 **QR size control (`qr_display_screen.dart`):**
 - Default size = 70 % of available width (`AppConstants.qrDefaultSizeRatio`)

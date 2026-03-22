@@ -38,4 +38,28 @@ class PwaIconService {
     html.window.location.href = path;
     return true;
   }
+
+  /// Saves [passphrase] to sessionStorage so it survives a full-page reload.
+  static void savePassphrase(String passphrase) {
+    html.window.sessionStorage['qr_bookmark_passphrase'] = passphrase;
+  }
+
+  /// Returns the stored passphrase (if any) and removes it from sessionStorage.
+  static String? consumePassphrase() {
+    final value = html.window.sessionStorage['qr_bookmark_passphrase'];
+    html.window.sessionStorage.remove('qr_bookmark_passphrase');
+    return value;
+  }
+
+  /// Saves [passphrase] for size-change navigation (separate key).
+  static void saveResizePassphrase(String passphrase) {
+    html.window.sessionStorage['qr_bookmark_resize_passphrase'] = passphrase;
+  }
+
+  /// Returns the resize passphrase (if any) and removes it from sessionStorage.
+  static String? consumeResizePassphrase() {
+    final value = html.window.sessionStorage['qr_bookmark_resize_passphrase'];
+    html.window.sessionStorage.remove('qr_bookmark_resize_passphrase');
+    return value;
+  }
 }

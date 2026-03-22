@@ -23,10 +23,14 @@ class _QrGenerateScreenState extends State<QrGenerateScreen> {
   QrInputType _selectedType = QrInputType.text;
   final _controller = TextEditingController();
   String? _errorText;
+  final _passphraseController = TextEditingController();
+  String? _passphraseErrorText;
+  bool _passphraseObscured = true;
 
   @override
   void dispose() {
     _controller.dispose();
+    _passphraseController.dispose();
     super.dispose();
   }
 
@@ -38,7 +42,7 @@ class _QrGenerateScreenState extends State<QrGenerateScreen> {
     });
   }
 
-  String? _validate(AppLocalizations l10n) {
+  String? _validateContent(AppLocalizations l10n) {
     final input = _controller.text.trim();
     if (input.isEmpty) return l10n.errorEmptyInput;
     if (_selectedType == QrInputType.binary) {
@@ -50,10 +54,21 @@ class _QrGenerateScreenState extends State<QrGenerateScreen> {
     return null;
   }
 
+  String? _validatePassphrase(AppLocalizations l10n) {
+    final text = _passphraseController.text;
+    if (text.isEmpty) return null;
+    if (text.length < 6) return l10n.errorPassphraseTooShort;
+    return null;
+  }
+
   void _generate(AppLocalizations l10n) {
-    final error = _validate(l10n);
-    if (error != null) {
-      setState(() => _errorText = error);
+    final contentError = _validateContent(l10n);
+    final passphraseError = _validatePassphrase(l10n);
+    if (contentError != null || passphraseError != null) {
+      setState(() {
+        _errorText = contentError;
+        _passphraseErrorText = passphraseError;
+      });
       return;
     }
 
@@ -61,10 +76,15 @@ class _QrGenerateScreenState extends State<QrGenerateScreen> {
     final content =
         _selectedType == QrInputType.binary ? input.toUpperCase() : input;
     final data = QrData(type: _selectedType, content: content);
+    final passphrase = _passphraseController.text;
 
     try {
-      final encoded = QrUrlService.encode(data);
+      final encoded = QrUrlService.encode(
+        data,
+        passphrase: passphrase.isEmpty ? null : passphrase,
+      );
       final path = QrUrlService.buildDisplayPath(encoded, 0);
+      if (passphrase.isNotEmpty) PwaIconService.savePassphrase(passphrase);
       // Web: フルページナビゲーションで index.html を再実行し
       // manifest の start_url を QR URL に確実に設定する。
       // Non-web: go_router のクライアントサイドナビゲーション。
@@ -110,6 +130,31 @@ class _QrGenerateScreenState extends State<QrGenerateScreen> {
                   : TextInputType.multiline,
               onChanged: (_) {
                 if (_errorText != null) setState(() => _errorText = null);
+              },
+            ),
+            const SizedBox(height: AppConstants.formSpacing),
+            TextField(
+              controller: _passphraseController,
+              obscureText: _passphraseObscured,
+              decoration: InputDecoration(
+                hintText: l10n.hintPassphrase,
+                errorText: _passphraseErrorText,
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _passphraseObscured
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                  ),
+                  onPressed: () {
+                    setState(() => _passphraseObscured = !_passphraseObscured);
+                  },
+                ),
+              ),
+              onChanged: (_) {
+                if (_passphraseErrorText != null) {
+                  setState(() => _passphraseErrorText = null);
+                }
               },
             ),
             const SizedBox(height: AppConstants.formButtonSpacing),
