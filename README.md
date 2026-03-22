@@ -2,6 +2,8 @@
 
 A Flutter PWA that generates QR codes from text or binary data and stores them in the URL — so you can bookmark any QR code and restore it instantly.
 
+**Demo:** https://qrbookmark.astralsystem.com/
+
 ## Features
 
 - **Text / Binary input** — encode UTF-8 text or hex strings (e.g. `BEEFFEEB01`)
