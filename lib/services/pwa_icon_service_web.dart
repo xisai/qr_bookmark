@@ -6,6 +6,10 @@ import 'dart:js_interop';
 @JS('setQrStartUrl')
 external void _setQrStartUrl(String url);
 
+/// Calls the global JS function `setQrIcon` defined in index.html.
+@JS('setQrIcon')
+external void _setQrIcon(String dataUrl);
+
 /// Updates PWA home screen metadata on web platforms.
 class PwaIconService {
   PwaIconService._();
@@ -17,6 +21,15 @@ class PwaIconService {
         .cast<html.LinkElement>();
     for (final link in links) {
       link.href = dataUrl;
+    }
+  }
+
+  /// SW に QR アイコンをキャッシュさせ、blob manifest の icons を切り替える（Android ホーム画面用）。
+  static void updateManifestIcon(String dataUrl) {
+    try {
+      _setQrIcon(dataUrl);
+    } catch (_) {
+      // Silently ignore — manifest update is best-effort.
     }
   }
 

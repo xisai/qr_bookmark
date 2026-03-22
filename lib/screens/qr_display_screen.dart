@@ -156,8 +156,10 @@ class _QrDisplayScreenState extends State<QrDisplayScreen> {
         await image.toByteData(format: ui.ImageByteFormat.png);
     if (byteData == null) return;
     final base64Str = base64Encode(byteData.buffer.asUint8List());
-    PwaIconService.updateIcon('data:image/png;base64,$base64Str');
-    await PwaIconService.updateManifestStartUrl();
+    final dataUrl = 'data:image/png;base64,$base64Str';
+    PwaIconService.updateIcon(dataUrl);           // iOS: apple-touch-icon
+    PwaIconService.updateManifestIcon(dataUrl);   // Android: SW キャッシュ + blob manifest 切り替え
+    await PwaIconService.updateManifestStartUrl(); // start_url を現在の URL に更新
   }
 
   @override

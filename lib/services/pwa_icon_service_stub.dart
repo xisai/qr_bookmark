@@ -6,6 +6,10 @@ class PwaIconService {
     // No-op on non-web platforms.
   }
 
+  static void updateManifestIcon(String dataUrl) {
+    // No-op on non-web platforms.
+  }
+
   static Future<void> updateManifestStartUrl() async {
     // No-op on non-web platforms.
   }
