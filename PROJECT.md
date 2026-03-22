@@ -54,6 +54,14 @@ iOSで「ホーム画面に追加」した際にQRデータを含むURLを保持
 - **Service Worker**: `sw.js` が `manifest.json` のフェッチをインターセプトし、`start_url` を現在のQR URLに書き換える
 - **GitHub Pages対応**: 存在しないパスへのアクセスは `404.html` で処理し、アプリのルートにリダイレクト後にパスを復元する
 
+### Androidホーム画面アイコン
+Android Chrome は `manifest.json` の `icons` フィールドを使うが、data URL を直接 icons に指定すると Chrome のPWAインストール判定を通過できない。そのため以下の方式で実装している。
+
+- **SW キャッシュ＋仮想 URL**: QR PNG を SW の CacheStorage に格納し、`/icons/qr-dynamic-icon.png` という仮想 URL として SW から配信する
+- **manifest 書き換え**: SW が `manifest.json` をインターセプトする際、QRアイコンがキャッシュ済みであれば `icons` を `/icons/qr-dynamic-icon.png` に書き換える
+- **blob manifest 連動**: `index.html` の `_qrIconMode` フラグが `true` のとき、blob manifest の `icons` も同じ仮想 URL に切り替わる
+- **フォールバック**: CacheStorage にQRアイコンがない場合は `Icon-512.png` を返す
+
 # 画面
 
 ## 共通

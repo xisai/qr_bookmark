@@ -51,7 +51,7 @@ git stash pop
 - [Flutter](https://flutter.dev/) — cross-platform UI framework
 - [go_router](https://pub.dev/packages/go_router) — URL-driven routing with path strategy
 - [pretty_qr_code](https://pub.dev/packages/pretty_qr_code) — QR rendering
-- Service Worker — intercepts `manifest.json` to set `start_url` dynamically for iOS PWA
+- Service Worker — intercepts `manifest.json` to set `start_url` dynamically; caches QR PNG as a virtual URL for Android home screen icon
 
 ## License
 

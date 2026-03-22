@@ -62,7 +62,7 @@ lib/
     crypto_service.dart             # XOR encrypt/decrypt + Base64URL + HMAC-SHA256
     qr_url_service.dart             # Encode/decode QrData ↔ URL path segments (passphrase対応)
     pwa_icon_service.dart           # Conditional export (web/stub)
-    pwa_icon_service_web.dart       # apple-touch-icon更新 + SWへのQR URL通知 + passphrase引き渡し
+    pwa_icon_service_web.dart       # apple-touch-icon更新 + SWへのQR URL/アイコン通知 + passphrase引き渡し
     pwa_icon_service_stub.dart      # No-op for non-web (passphrase引き渡しのみ実装)
   widgets/
     app_scaffold.dart               # Scaffold + hamburger drawer (all screens share this)
@@ -71,10 +71,10 @@ lib/
     qr_display_screen.dart          # "/qr/<encoded>[/<sizeSteps>]" → QR display + size buttons
     manual_screen.dart              # "/manual"
 web/
-  index.html                        # GitHub Pages SPAパス復元スクリプト + setQrStartUrl() 含む
+  index.html                        # GitHub Pages SPAパス復元スクリプト + setQrStartUrl() / setQrIcon() 含む
   404.html                          # GitHub Pages SPA用リダイレクト
   flutter_bootstrap.js              # カスタムブートストラップ (sw.js を登録)
-  sw.js                             # Service Worker: manifest.json インターセプト + Flutter SW委譲
+  sw.js                             # Service Worker: manifest.json インターセプト + QRアイコン配信 + Flutter SW委譲
   manifest.json                     # PWAマニフェスト
 ```
 
@@ -111,11 +111,17 @@ On decode: marker byte `0xFF` triggers passphrase prompt; HMAC is verified befor
 - Clamped to `[AppConstants.qrMinSize, maxWidth − AppConstants.qrHorizontalMargin]`
 - サイズステップは URL パスの第2セグメントとして保持される
 
-**PWA / iOS home screen:**
-- QR表示画面を開くと `apple-touch-icon` をQR画像に更新
-- Service Worker (`sw.js`) が `manifest.json` フェッチをインターセプトし `start_url` をQR URLに書き換える
-- `controllerchange` イベント後に `<link rel="manifest">` の href を更新して再フェッチを強制
+**PWA ホーム画面（iOS / Android）:**
+- QR表示画面を開くと `_captureAndUpdatePwaIcon()` が以下を実行する：
+  - **iOS**: `<link rel="apple-touch-icon">` の href をQR data URL に更新
+  - **Android**: SW に `SET_QR_ICON` メッセージを送りQR PNG を CacheStorage へキャッシュ。blob manifest の `icons` を仮想 URL `/icons/qr-dynamic-icon.png` に切り替える（`_qrIconMode = true`）
+  - **共通**: SW に `SET_QR_URL` メッセージを送り `manifest.json` の `start_url` をQR URLに書き換える
+- SW (`sw.js`) のフェッチインターセプト：
+  - `destination === 'manifest'` → `start_url` を書き換え、QRアイコンがキャッシュ済みなら `icons` も書き換える
+  - `/icons/qr-dynamic-icon.png` → CacheStorage のQR PNG を返す（なければ `Icon-512.png` にフォールバック）
+- blob manifest (`index.html` の `updatePwaManifest()`) は `_qrIconMode` フラグで icons を切り替える
 - パスベースURLにより iOSがホーム画面追加時のURLを保持しやすくなっている
+- フルページナビゲーション（QR生成画面へ戻る等）で `index.html` が再実行され `_qrIconMode` は自動リセットされる
 
 **Key dependencies:**
 - `pretty_qr_code: ^3.6.0` — QR rendering (`PrettyQrView`)
