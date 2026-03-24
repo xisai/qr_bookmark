@@ -62,6 +62,18 @@ Android Chrome は `manifest.json` の `icons` フィールドを使うが、dat
 - **blob manifest 連動**: `index.html` の `_qrIconMode` フラグが `true` のとき、blob manifest の `icons` も同じ仮想 URL に切り替わる
 - **フォールバック**: CacheStorage にQRアイコンがない場合は `Icon-512.png` を返す
 
+## セキュリティ
+### Content-Security-Policy (CSP)
+本番ビルド（GitHub Pages）には `<meta http-equiv="Content-Security-Policy">` タグで CSP を適用する。
+CSP はビルド後に `scripts/inject_csp.py` を実行することで `build/web/index.html` へ注入される。
+ソースの `web/index.html` には CSP を記述しない（`flutter run` の開発モードが DDC のインラインスクリプトで動作できるようにするため）。
+
+許可する外部オリジン：
+- `https://www.gstatic.com` — Flutter CanvasKit（WebGL レンダラー）
+- `https://fonts.gstatic.com` — Roboto フォント（Material UI）
+
+`web/404.html`（リダイレクト専用ページ）の CSP はソースに直接記述する。
+
 # 画面
 
 ## 共通

@@ -23,6 +23,16 @@ flutter build apk      # Build Android APK (also: ios, linux, macos, windows)
   `yyyyMMdd-N` 形式でインクリメントする（同日なら N を +1、日付が変わったら日付更新・N=1）。
 - **コミット・プッシュは明示的に指示があった場合のみ行うこと。**
 
+## CSP (Content-Security-Policy)
+
+- **`web/index.html` にはCSPを書かない。** `flutter run`（開発モード）が DDC のインライン
+  スクリプトで動作できるよう、CSP はビルド成果物にのみ注入する。
+- **`web/404.html` の CSP はソースに直接記述する。** リダイレクト専用ページで DDC は不使用。
+
+CSP の注入は `flutter build web --release` の後に実行するスクリプトで行う（後述）。
+`web/index.html` の `<script>` ブロックを変更してもスクリプトが自動でハッシュを再計算するため、
+手動更新は不要。
+
 ## Web deployment (web-pages branch)
 
 web-pages ブランチには `flutter build web --release` のビルド成果物のみを格納する。
@@ -30,6 +40,7 @@ web-pages ブランチには `flutter build web --release` のビルド成果物
 
 ```bash
 flutter build web --release
+python3 scripts/inject_csp.py
 git stash
 git checkout web-pages
 cp -r build/web/. .
@@ -70,9 +81,11 @@ lib/
     qr_generate_screen.dart         # "/" → input form
     qr_display_screen.dart          # "/qr/<encoded>[/<sizeSteps>]" → QR display + size buttons
     manual_screen.dart              # "/manual"
+scripts/
+  inject_csp.py                     # ビルド後に build/web/index.html へ CSP meta タグを注入する
 web/
-  index.html                        # GitHub Pages SPAパス復元スクリプト + setQrStartUrl() / setQrIcon() 含む
-  404.html                          # GitHub Pages SPA用リダイレクト
+  index.html                        # GitHub Pages SPAパス復元スクリプト + setQrStartUrl() / setQrIcon() 含む（CSPなし）
+  404.html                          # GitHub Pages SPA用リダイレクト（CSP直接記述）
   flutter_bootstrap.js              # カスタムブートストラップ (sw.js を登録)
   sw.js                             # Service Worker: manifest.json インターセプト + QRアイコン配信 + Flutter SW委譲
   manifest.json                     # PWAマニフェスト

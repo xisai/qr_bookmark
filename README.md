@@ -36,6 +36,7 @@ The `web-pages` branch hosts the built web app (GitHub Pages).
 
 ```bash
 flutter build web --release
+python3 scripts/inject_csp.py   # Inject CSP meta tag into build/web/index.html
 git stash
 git checkout web-pages
 cp -r build/web/. .
@@ -52,6 +53,7 @@ git stash pop
 - [go_router](https://pub.dev/packages/go_router) — URL-driven routing with path strategy
 - [pretty_qr_code](https://pub.dev/packages/pretty_qr_code) — QR rendering
 - Service Worker — intercepts `manifest.json` to set `start_url` dynamically; caches QR PNG as a virtual URL for Android home screen icon
+- Content-Security-Policy — injected into production build via `scripts/inject_csp.py`; hash-based inline script allowlist + allowlist for Google CDN (CanvasKit / Roboto)
 
 ## License
 
