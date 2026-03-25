@@ -64,7 +64,7 @@ Flutter PWA web app. Routing is URL-driven via `go_router` with `usePathUrlStrat
 lib/
   main.dart                         # App entry, usePathUrlStrategy(), GoRouter setup, MaterialApp.router
   app_version.dart                  # kAppVersion 定数 (yyyyMMdd-N)
-  app_constants.dart                # UI調整用の定数クラス
+  app_constants.dart                # UI調整用の定数クラス（maxQrContentBytes=2330, maxBinaryHexChars=4660 含む）
   l10n/
     app_localizations.dart          # EN/JA strings via abstract class + two impl classes
   models/
@@ -117,6 +117,11 @@ On decode: marker byte `0xFF` triggers passphrase prompt; HMAC is verified befor
 - Generate → Display (full-page nav): passphrase saved to `sessionStorage['qr_bookmark_passphrase']`, consumed in `initState` → `_DisplayState.autoUnlocked` (shows banner)
 - Display → Display (size change, `context.replace`): passphrase saved to `sessionStorage['qr_bookmark_resize_passphrase']`, consumed in `initState` → `_DisplayState.unlocked` (no banner)
 - URL direct access without passphrase: → `_DisplayState.locked` (shows passphrase input form)
+
+**Input limits (`qr_generate_screen.dart`):**
+- テキストモード: UTF-8バイト数 ≤ `AppConstants.maxQrContentBytes` (2330)。入力欄下部にリアルタイムバイト数カウンター（`xxx / 2330 B`）を表示。超過時は🚫絵文字と赤色で強調。
+- バイナリモード: hex文字数 ≤ `AppConstants.maxBinaryHexChars` (4660)。`maxLength` で入力を物理的にブロック。カウンターは実バイト数（`xx / 2330 B`）を表示。
+- QR生成ボタンの高さはデフォルト(48dp)の1.5倍(72dp)。
 
 **QR size control (`qr_display_screen.dart`):**
 - Default size = 70 % of available width (`AppConstants.qrDefaultSizeRatio`)

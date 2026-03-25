@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+import '../app_constants.dart';
+
 /// Provides localized strings for the app.
 /// Supports English (default) and Japanese.
 abstract class AppLocalizations {
@@ -46,6 +48,7 @@ abstract class AppLocalizations {
   String get errorEmptyInput;
   String get errorInvalidHex;
   String get errorQrDataTooLarge;
+  String get errorTextTooLarge;
   String get errorInvalidQrData;
 
   // Navigation drawer
@@ -127,6 +130,10 @@ class _EnLocalizations implements AppLocalizations {
   String get errorQrDataTooLarge => 'Data is too large for a QR code.';
 
   @override
+  String get errorTextTooLarge =>
+      'Text exceeds ${AppConstants.maxQrContentBytes} bytes (QR limit).';
+
+  @override
   String get errorInvalidQrData => 'Invalid QR data.';
 
   @override
@@ -144,8 +151,8 @@ class _EnLocalizations implements AppLocalizations {
 ## Creating a QR Code
 1. Select the input type: Text or Binary.
 2. Enter the data you want to encode.
-   - Text: Any UTF-8 text.
-   - Binary: A hex string (e.g. BEEFFEEB01). Must be an even number of characters using 0–9 and A–F.
+   - Text: Any UTF-8 text (up to ${AppConstants.maxQrContentBytes} bytes).
+   - Binary: A hex string (e.g. BEEFFEEB01). Must be an even number of characters using 0–9 and A–F (up to ${AppConstants.maxBinaryHexChars} characters = ${AppConstants.maxQrContentBytes} bytes).
 3. Optionally enter a passphrase (6 characters or more) to protect the QR code.
 4. Tap "Generate QR" to create the QR code.
 
@@ -232,6 +239,10 @@ class _JaLocalizations implements AppLocalizations {
   String get errorQrDataTooLarge => 'データがQRコードの容量を超えています。';
 
   @override
+  String get errorTextTooLarge =>
+      'テキストが${AppConstants.maxQrContentBytes}バイトを超えています（QR上限）。';
+
+  @override
   String get errorInvalidQrData => 'QRデータが無効です。';
 
   @override
@@ -249,8 +260,8 @@ class _JaLocalizations implements AppLocalizations {
 ## QRコードの作成
 1. 入力タイプを選択します（テキストまたはバイナリ）。
 2. エンコードしたいデータを入力します。
-   - テキスト：UTF-8テキストを入力してください。
-   - バイナリ：16進数文字列を入力してください（例: BEEFFEEB01）。0〜9、A〜Fの文字を偶数桁で入力する必要があります。
+   - テキスト：UTF-8テキストを入力してください（${AppConstants.maxQrContentBytes}バイトまで）。
+   - バイナリ：16進数文字列を入力してください（例: BEEFFEEB01）。0〜9、A〜Fの文字を偶数桁で入力する必要があります（${AppConstants.maxBinaryHexChars}文字=${AppConstants.maxQrContentBytes}バイトまで）。
 3. 必要に応じてあいことばを入力します（6文字以上、任意）。
 4. 「QR生成」ボタンをタップしてQRコードを生成します。
 

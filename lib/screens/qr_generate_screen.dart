@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,6 +25,7 @@ class _QrGenerateScreenState extends State<QrGenerateScreen> {
   QrInputType _selectedType = QrInputType.text;
   final _controller = TextEditingController();
   String? _errorText;
+  int _textByteCount = 0;
   final _passphraseController = TextEditingController();
   String? _passphraseErrorText;
   bool _passphraseObscured = true;
@@ -39,13 +42,18 @@ class _QrGenerateScreenState extends State<QrGenerateScreen> {
     setState(() {
       _selectedType = value;
       _errorText = null;
+      _textByteCount = 0;
     });
   }
 
   String? _validateContent(AppLocalizations l10n) {
     final input = _controller.text.trim();
     if (input.isEmpty) return l10n.errorEmptyInput;
-    if (_selectedType == QrInputType.binary) {
+    if (_selectedType == QrInputType.text) {
+      if (utf8.encode(input).length > AppConstants.maxQrContentBytes) {
+        return l10n.errorTextTooLarge;
+      }
+    } else {
       if (!RegExp(r'^[0-9A-Fa-f]+$').hasMatch(input)) {
         return l10n.errorInvalidHex;
       }
@@ -112,26 +120,60 @@ class _QrGenerateScreenState extends State<QrGenerateScreen> {
               l10n: l10n,
             ),
             const SizedBox(height: AppConstants.formSpacing),
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                hintText: _selectedType == QrInputType.text
-                    ? l10n.hintText
-                    : l10n.hintBinary,
-                errorText: _errorText,
-                border: const OutlineInputBorder(),
+            if (_selectedType == QrInputType.text)
+              TextField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  hintText: l10n.hintText,
+                  errorText: _errorText,
+                  border: const OutlineInputBorder(),
+                ),
+                minLines: AppConstants.textInputMinLines,
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                buildCounter:
+                    (context, {required currentLength, required isFocused, maxLength}) {
+                  final isOver =
+                      _textByteCount > AppConstants.maxQrContentBytes;
+                  return Text(
+                    '${isOver ? '🚫 ' : ''}'
+                    '$_textByteCount / ${AppConstants.maxQrContentBytes} B',
+                    style: TextStyle(
+                      color: isOver
+                          ? Theme.of(context).colorScheme.error
+                          : null,
+                    ),
+                  );
+                },
+                onChanged: (value) {
+                  setState(() {
+                    _textByteCount = utf8.encode(value).length;
+                    if (_errorText != null) _errorText = null;
+                  });
+                },
+              )
+            else
+              TextField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  hintText: l10n.hintBinary,
+                  errorText: _errorText,
+                  border: const OutlineInputBorder(),
+                ),
+                minLines: 1,
+                maxLines: 1,
+                maxLength: AppConstants.maxBinaryHexChars,
+                keyboardType: TextInputType.visiblePassword,
+                buildCounter:
+                    (context, {required currentLength, required isFocused, maxLength}) {
+                  return Text(
+                    '${currentLength ~/ 2} / ${AppConstants.maxQrContentBytes} B',
+                  );
+                },
+                onChanged: (_) {
+                  if (_errorText != null) setState(() => _errorText = null);
+                },
               ),
-              minLines: _selectedType == QrInputType.text
-                  ? AppConstants.textInputMinLines
-                  : 1,
-              maxLines: _selectedType == QrInputType.text ? null : 1,
-              keyboardType: _selectedType == QrInputType.binary
-                  ? TextInputType.visiblePassword
-                  : TextInputType.multiline,
-              onChanged: (_) {
-                if (_errorText != null) setState(() => _errorText = null);
-              },
-            ),
             const SizedBox(height: AppConstants.formSpacing),
             TextField(
               controller: _passphraseController,
@@ -158,9 +200,12 @@ class _QrGenerateScreenState extends State<QrGenerateScreen> {
               },
             ),
             const SizedBox(height: AppConstants.formButtonSpacing),
-            ElevatedButton(
-              onPressed: () => _generate(l10n),
-              child: Text(l10n.generateButton),
+            SizedBox(
+              height: 56 * 1.5,
+              child: ElevatedButton(
+                onPressed: () => _generate(l10n),
+                child: Text(l10n.generateButton),
+              ),
             ),
           ],
         ),

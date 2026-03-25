@@ -43,6 +43,12 @@ abstract final class AppConstants {
   /// テキスト入力エリアの最小行数。
   static const int textInputMinLines = 4;
 
+  /// QRコード入力の最大バイト数（QRコード理論上限2331Bより1B小さいきりの良い値）。
+  static const int maxQrContentBytes = 2330;
+
+  /// バイナリモードで入力できる最大hex文字数（maxQrContentBytes × 2）。
+  static const int maxBinaryHexChars = maxQrContentBytes * 2;
+
   /// 横並びボタン間のスペース（dp）。
   static const double buttonRowSpacing = 24.0;
 

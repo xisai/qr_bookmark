@@ -6,7 +6,7 @@ A Flutter PWA that generates QR codes from text or binary data and stores them i
 
 ## Features
 
-- **Text / Binary input** — encode UTF-8 text or hex strings (e.g. `BEEFFEEB01`)
+- **Text / Binary input** — encode UTF-8 text (up to 2330 bytes) or hex strings (e.g. `BEEFFEEB01`, up to 4660 chars); real-time byte counter with 🚫 indicator when over limit
 - **URL-based persistence** — QR data is embedded in the page URL; bookmark it to save your QR code
 - **Passphrase protection** — optionally encrypt the QR data with a passphrase (6+ chars); only users who know the passphrase can view the QR code
 - **Resizable QR display** — enlarge or shrink the QR image with + / − buttons; size is preserved in the URL
