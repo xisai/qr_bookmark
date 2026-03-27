@@ -1,6 +1,6 @@
-// ignore: deprecated_member_use
-import 'dart:html' as html;
 import 'dart:js_interop';
+
+import 'package:web/web.dart' as web;
 
 /// Calls the global JS function `setQrStartUrl` defined in index.html.
 @JS('setQrStartUrl')
@@ -16,11 +16,12 @@ class PwaIconService {
 
   /// Replaces the `apple-touch-icon` link element's href with [dataUrl].
   static void updateIcon(String dataUrl) {
-    final links = html.document
-        .querySelectorAll('link[rel="apple-touch-icon"]')
-        .cast<html.LinkElement>();
-    for (final link in links) {
-      link.href = dataUrl;
+    final links = web.document.querySelectorAll('link[rel="apple-touch-icon"]');
+    for (var i = 0; i < links.length; i++) {
+      final el = links.item(i);
+      if (el != null && el.isA<web.HTMLLinkElement>()) {
+        (el as web.HTMLLinkElement).href = dataUrl;
+      }
     }
   }
 
@@ -38,7 +39,7 @@ class PwaIconService {
   /// home screen on iOS.
   static Future<void> updateManifestStartUrl() async {
     try {
-      _setQrStartUrl(html.window.location.href);
+      _setQrStartUrl(web.window.location.href);
     } catch (_) {
       // Silently ignore — manifest update is best-effort.
     }
@@ -48,31 +49,36 @@ class PwaIconService {
   /// sets the correct manifest start_url immediately.
   /// Returns `true` to indicate navigation was handled by this method.
   static bool navigateToPath(String path) {
-    html.window.location.href = path;
+    web.window.location.href = path;
     return true;
   }
 
   /// Saves [passphrase] to sessionStorage so it survives a full-page reload.
   static void savePassphrase(String passphrase) {
-    html.window.sessionStorage['qr_bookmark_passphrase'] = passphrase;
+    web.window.sessionStorage.setItem('qr_bookmark_passphrase', passphrase);
   }
 
   /// Returns the stored passphrase (if any) and removes it from sessionStorage.
   static String? consumePassphrase() {
-    final value = html.window.sessionStorage['qr_bookmark_passphrase'];
-    html.window.sessionStorage.remove('qr_bookmark_passphrase');
+    final value = web.window.sessionStorage.getItem('qr_bookmark_passphrase');
+    web.window.sessionStorage.removeItem('qr_bookmark_passphrase');
     return value;
   }
 
   /// Saves [passphrase] for size-change navigation (separate key).
   static void saveResizePassphrase(String passphrase) {
-    html.window.sessionStorage['qr_bookmark_resize_passphrase'] = passphrase;
+    web.window.sessionStorage.setItem(
+      'qr_bookmark_resize_passphrase',
+      passphrase,
+    );
   }
 
   /// Returns the resize passphrase (if any) and removes it from sessionStorage.
   static String? consumeResizePassphrase() {
-    final value = html.window.sessionStorage['qr_bookmark_resize_passphrase'];
-    html.window.sessionStorage.remove('qr_bookmark_resize_passphrase');
+    final value = web.window.sessionStorage.getItem(
+      'qr_bookmark_resize_passphrase',
+    );
+    web.window.sessionStorage.removeItem('qr_bookmark_resize_passphrase');
     return value;
   }
 }

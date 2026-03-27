@@ -228,7 +228,7 @@ class _TypeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<QrInputType>(
-      value: selected,
+      initialValue: selected,
       decoration: const InputDecoration(border: OutlineInputBorder()),
       items: [
         DropdownMenuItem(
